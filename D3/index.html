@@ -49,12 +49,12 @@ var svg = d3.select(chartDiv).append("svg");
 var width = chartDiv.clientWidth;
 var height = chartDiv.clientHeight;
 
-var body = d3.select('body')
+// var body = d3.select('body')
 
-body.append('input')
-    .attr('type','text')
-    .attr('name','textInput')
-    .attr('placeholder','Select kupu:');
+// body.append('input')
+//    .attr('type','text')
+//    .attr('name','textInput')
+//    .attr('placeholder','Select kupu:');
 
 // Use the extracted size to set the size of an SVG element.
 svg
@@ -100,8 +100,7 @@ var tsne = d3.csv("tsne.csv", function (error, data) {
       .attr("cy", function(d) { return d['y_coord']; })
       .attr("r",  function(d) { return 0.2 * Math.log(d['word_count'] + 1)})
       .style("fill", function(d) {
-        return d3.interpolateReds(1 - d['rank'] / data.length)})
-      .on("click", clicked);
+        return d3.interpolateReds(1 - d['rank'] / data.length)});
 
   g.selectAll("text")
     .data(data)
@@ -115,60 +114,6 @@ var tsne = d3.csv("tsne.csv", function (error, data) {
       .attr('y', function(d) {return d['y_coord'];})
       .style('fill', 'white');
   
-  function getTransformation(transform) {
-    // Create a dummy g for calculation purposes only. This will never
-    // be appended to the DOM and will be discarded once this function 
-    // returns.
-    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    
-    // Set the transform attribute to the provided string value.
-    g.setAttributeNS(null, "transform", transform);
-    
-    // consolidate the SVGTransformList containing all transformations
-    // to a single SVGTransform of type SVG_TRANSFORM_MATRIX and get
-    // its SVGMatrix. 
-    var matrix = g.transform.baseVal.consolidate().matrix;
-    
-    // Below calculations are taken and adapted from the private function
-    // transform/decompose.js of D3's module d3-interpolate.
-    var {a, b, c, d, e, f} = matrix;   // ES6, if this doesn't work, use below assignment
-    // var a=matrix.a, b=matrix.b, c=matrix.c, d=matrix.d, e=matrix.e, f=matrix.f; // ES5
-    var scaleX, scaleY, skewX;
-    if (scaleX = Math.sqrt(a * a + b * b)) a /= scaleX, b /= scaleX;
-    if (skewX = a * c + b * d) c -= a * skewX, d -= b * skewX;
-    if (scaleY = Math.sqrt(c * c + d * d)) c /= scaleY, d /= scaleY, skewX /= scaleY;
-    if (a * d < b * c) a = -a, b = -b, skewX = -skewX, scaleX = -scaleX;
-    return {
-      translateX: e,
-      translateY: f,
-      rotate: Math.atan2(b, a) * 180 / Math.PI,
-      skewX: Math.atan(skewX) * 180 / Math.PI,
-      scaleY: scaleY
-    };
-  }
-
-
-  function clicked(d) {
-    // from http://jsfiddle.net/EHMM5/1/
-    var x, y, k;
-          
-    x = d3.select(this).attr("cx");
-    y = d3.select(this).attr("cy");
-
-    var t = getTransformation(
-      d3.select('g').attr("transform"));
-
-    var x_target = -x * t.scaleX + width / 2;
-    var y_target = -y * t.scaleY + height / 2;
-
-    svg.selectAll("g")
-      .transition()
-        .duration(750)
-        .attr("transform", 
-              "translate(" + x_target + "," + y_target + ") scale(" + t.scaleX + ")");
-
-  }
-
 })
 
 </script>
